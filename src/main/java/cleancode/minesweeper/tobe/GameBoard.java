@@ -1,5 +1,9 @@
 package cleancode.minesweeper.tobe;
 
+import cleancode.minesweeper.tobe.cell.Cell;
+import cleancode.minesweeper.tobe.cell.EmptyCell;
+import cleancode.minesweeper.tobe.cell.LandMineCell;
+import cleancode.minesweeper.tobe.cell.NumberCell;
 import cleancode.minesweeper.tobe.gamelevel.GameLevel;
 
 import java.util.Arrays;
@@ -8,7 +12,6 @@ import java.util.Random;
 public class GameBoard {
 
     private final Cell[][] board;
-
     private final int landMineCount;
 
     public GameBoard(GameLevel gameLevel) {
@@ -25,14 +28,14 @@ public class GameBoard {
 
         for (int row = 0; row < rowSize; row++) {
             for (int col = 0; col < colSize; col++) {
-                board[row][col] = Cell.create();
+                board[row][col] = new EmptyCell();
             }
         }
 
         for (int i = 0; i < landMineCount; i++) {
             int landMineCol = new Random().nextInt(colSize);
             int landMinRow = new Random().nextInt(rowSize);
-            findCell(landMinRow, landMineCol).turnOnLandMine();
+            board[landMinRow][landMineCol] = new LandMineCell();
         }
 
         for (int row = 0; row < rowSize; row++) {
@@ -40,8 +43,11 @@ public class GameBoard {
                 if (isLandMineCell(row, col)) {
                     continue;
                 }
-                Cell cell = findCell(row, col);
-                cell.updateNearbyLandMines(countNearbyLandMines(row, col));
+                int count = countNearbyLandMines(row, col);
+                if (count == 0) {
+                    continue;
+                }
+                board[row][col] = new NumberCell(count);
             }
         }
     }
